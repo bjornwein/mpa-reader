@@ -361,7 +361,6 @@ impl<'buf> MpaHeader<'buf> {
     pub fn from_bytes(buf: &'buf [u8]) -> Result<MpaHeader<'_>, MpaHeaderError> {
         assert!(!buf.is_empty());
         let header_len = 4;
-        println!("from_bytes({})", buf.len());
         Self::check_len(header_len, buf.len())?;
         let header = MpaHeader { buf };
         if header.sync_word() != 0xfff {
@@ -481,7 +480,7 @@ impl<'buf> MpaHeader<'buf> {
     }
 
     /// Calculates the length of the frame payload. Returns None if it can't be calculated due to
-    /// invalud bit rate or frame rate.
+    /// invalid bit rate or frame rate.
     pub fn payload_length(&self) -> Option<u16> {
         let padding_slots = match self.padding() {
             Padding::Absent => 0,
@@ -945,12 +944,10 @@ mod tests {
             _originality: Originality,
             _emphasis: Emphasis,
         ) {
-            println!("New config");
             self.assert_seq(0);
             assert_eq!(mpeg_version, MpegVersion::Mpeg2);
         }
         fn payload(&mut self, buf: &[u8]) {
-            println!("paylload: {}", buf.len());
             self.payload_seq += 1;
             let new_payload_seq = self.payload_seq;
             self.assert_seq(new_payload_seq);
@@ -968,13 +965,10 @@ mod tests {
             write_frame(&mut w)
         });
         for split in 0..header_data.len() {
-            println!("Split: {split}");
             let mut parser = MpaParser::new(MockConsumer::new());
             let (head, tail) = header_data.split_at(split);
             parser.push(head);
-            println!("pushed head ({} vs {})", head.len(), tail.len());
             parser.push(tail);
-            println!("pushed tail ({} vs {})", head.len(), tail.len());
             assert_eq!(2, parser.consumer.payload_seq);
             assert_eq!(Some(768), parser.consumer.payload_size);
         }
