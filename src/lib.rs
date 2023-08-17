@@ -141,7 +141,7 @@ impl BitRate {
             (MpegVersion::Mpeg1, MpegLayer::LayerII, 0xb) => BitRate::BitRate224000,
             (MpegVersion::Mpeg1, MpegLayer::LayerII, 0xc) => BitRate::BitRate256000,
             (MpegVersion::Mpeg1, MpegLayer::LayerII, 0xd) => BitRate::BitRate320000,
-            (MpegVersion::Mpeg1, MpegLayer::LayerII, 0xe) => BitRate::BitRate448000,
+            (MpegVersion::Mpeg1, MpegLayer::LayerII, 0xe) => BitRate::BitRate384000,
 
             (MpegVersion::Mpeg1, MpegLayer::LayerIII, 0x1) => BitRate::BitRate32000,
             (MpegVersion::Mpeg1, MpegLayer::LayerIII, 0x2) => BitRate::BitRate40000,
