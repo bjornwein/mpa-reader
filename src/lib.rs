@@ -476,12 +476,6 @@ impl<'buf> MpaHeader<'buf> {
     /// length of this frame, including the length of the header, or None if it can't be calculated
     /// due to invalid bit rate or frame rate.
     pub fn frame_length(&self) -> Option<u16> {
-        Some(self.header_length() + self.payload_length()?)
-    }
-
-    /// Calculates the length of the frame payload. Returns None if it can't be calculated due to
-    /// invalid bit rate or frame rate.
-    pub fn payload_length(&self) -> Option<u16> {
         let padding_slots = match self.padding() {
             Padding::Absent => 0,
             Padding::Present => 1,
@@ -494,6 +488,12 @@ impl<'buf> MpaHeader<'buf> {
             (144 * self.bit_rate().rate()? / self.sampling_frequency().freq()? + padding_slots)
                 as u16
         })
+    }
+
+    /// Calculates the length of the frame payload. Returns None if it can't be calculated due to
+    /// invalid bit rate or frame rate.
+    pub fn payload_length(&self) -> Option<u16> {
+        Some(self.frame_length()? - self.header_length())
     }
 
     /// Gives the 16-bit cyclic redundancy check value stored in this frame header, or `None` if
@@ -882,7 +882,7 @@ mod tests {
         w.write(1, 1)?; // original_copy
         w.write(2, 0b00)?; // emphasis
 
-        for _ in 0..768 {
+        for _ in 0..764 {
             w.write(8, 0b10000001)?; // 1 byte of payload data
         }
 
@@ -905,10 +905,10 @@ mod tests {
         assert_eq!(header.channel_mode(), ChannelMode::Stereo);
         assert_eq!(header.originality(), Originality::Copy);
         assert_eq!(header.emphasis(), Emphasis::EmphasisNone);
-        assert_eq!(header.frame_length(), Some(768 + 4));
-        assert_eq!(header.payload_length(), Some(768));
+        assert_eq!(header.frame_length(), Some(764 + 4));
+        assert_eq!(header.payload_length(), Some(764));
         assert_eq!(header.payload().unwrap()[0], 0b10000001);
-        assert_eq!(header.payload().unwrap().len(), 768);
+        assert_eq!(header.payload().unwrap().len(), 764);
     }
 
     struct MockConsumer {
@@ -970,7 +970,7 @@ mod tests {
             parser.push(head);
             parser.push(tail);
             assert_eq!(2, parser.consumer.payload_seq);
-            assert_eq!(Some(768), parser.consumer.payload_size);
+            assert_eq!(Some(764), parser.consumer.payload_size);
         }
     }
 
