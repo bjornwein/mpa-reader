@@ -604,6 +604,8 @@ pub trait MpaConsumer {
     /// however appear in every frame (so that the bitstream format can support seeking, not that
     /// this implementation helps there) and so it would be possible for a malformed bitstream to
     /// signal a configuration change part way through.
+    ///
+    #[allow(clippy::too_many_arguments)]
     fn new_config(
         &mut self,
         mpeg_version: MpegVersion,
