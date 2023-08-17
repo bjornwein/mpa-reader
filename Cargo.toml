@@ -1,14 +1,14 @@
 [package]
-name = "adts-reader"
-version = "0.2.0"
-authors = ["David Holroyd <dave@badgers-in-foil.co.uk>"]
-description = "Rust reader for Audio Data Transport Stream (ADTS) frames"
+name = "mpa-reader"
+version = "0.1.0"
+authors = ["Björn Weinehall <bjorn.weinehall@intinor.se>"]
+description = "Rust reader for MPEG-1 and MPEG-2 audio frames"
 categories = [ "multimedia::audio", "parser-implementations" ]
-keywords = [ "ADTS", "MPEG", "AAC", "ISO-13818-7" ]
-repository = "https://github.com/dholroyd/adts-reader"
+keywords = [ "MPA", "MP2", "MPEG", "ISO-11172-3", "ISO-13818-3" ]
+repository = "https://github.com/bjornwein/mpa-reader"
 readme = "README.md"
 license = "MIT/Apache-2.0"
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 

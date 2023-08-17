@@ -1,41 +1,49 @@
-extern crate adts_reader;
 extern crate hexdump;
+extern crate mpa_reader;
 
-use adts_reader::*;
+use mpa_reader::*;
 use std::env;
 use std::fs::File;
 use std::io;
 
-struct DumpAdtsConsumer {
+struct DumpMpaConsumer {
     frame_count: usize,
 }
-impl AdtsConsumer for DumpAdtsConsumer {
+impl MpaConsumer for DumpMpaConsumer {
     fn new_config(
         &mut self,
         mpeg_version: MpegVersion,
+        mpeg_layer: MpegLayer,
         protection: ProtectionIndicator,
-        aot: AudioObjectType,
+        rate: BitRate,
         freq: SamplingFrequency,
         private_bit: u8,
-        channels: ChannelConfiguration,
+        channel_mode: ChannelMode,
+        copyright: Copyright,
         originality: Originality,
-        home: u8,
+        emphasis: Emphasis,
     ) {
-        println!("New ADTS configuration found");
+        println!("New MPA configuration found");
         println!(
-            "{:?} {:?} {:?} {:?} private_bit={} {:?} {:?} home={}",
-            mpeg_version, protection, aot, freq, private_bit, channels, originality, home
+            "{:?} {:?} {:?} {:?} {:?} private_bit={} {:?} {:?} {:?} {:?}",
+            mpeg_version,
+            mpeg_layer,
+            protection,
+            rate,
+            freq,
+            private_bit,
+            channel_mode,
+            copyright,
+            originality,
+            emphasis,
         );
     }
-    fn payload(&mut self, buffer_fullness: u16, number_of_blocks: u8, buf: &[u8]) {
-        println!(
-            "ADTS Frame buffer_fullness={} blocks={}",
-            buffer_fullness, number_of_blocks
-        );
+    fn payload(&mut self, buf: &[u8]) {
+        println!("Audio Frame",);
         hexdump::hexdump(buf);
         self.frame_count += 1;
     }
-    fn error(&mut self, err: AdtsParseError) {
+    fn error(&mut self, err: MpaParseError) {
         println!("Error: {:?}", err);
     }
 }
@@ -48,7 +56,7 @@ where
     const LEN: usize = 1024 * 1024;
     let mut buf = [0u8; LEN];
     let mut byte_count = 0;
-    let mut parser = AdtsParser::new(DumpAdtsConsumer { frame_count: 0 });
+    let mut parser = MpaParser::new(DumpMpaConsumer { frame_count: 0 });
     loop {
         match r.read(&mut buf[..])? {
             0 => break,
@@ -59,7 +67,10 @@ where
             }
         };
     }
-    println!("Processed {} bytes, {} ADTS frames", byte_count, parser.consumer.frame_count);
+    println!(
+        "Processed {} bytes, {} ADTS frames",
+        byte_count, parser.consumer.frame_count
+    );
     Ok(())
 }
 

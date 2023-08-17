@@ -1,9 +1,10 @@
-# adts-reader
-A Rust parser for the [Audio Data Transport Stream](https://wiki.multimedia.cx/index.php/ADTS)
-framing format used to carry encoded AAC audio data.
+# mpa-reader
+A Rust parser for [MPEG-1 and MPEG-2 audio](hhttp://mpgedit.org/mpgedit/mpeg_format/mpeghdr.htm)
+format used to carry encoded audio data.
 
-[![crates.io version](https://img.shields.io/crates/v/adts-reader.svg)](https://crates.io/crates/adts-reader)
-[![Documentation](https://docs.rs/adts-reader/badge.svg)](https://docs.rs/adts-reader)
+This is a heavily modified fork of the excellent [ADTS reader](https://github.com/dholroyd/adts-reader)
+
+TODO: update the rest of the README ;-)
 
 👉 **NB** This is not an AAC decoder, nor is it able to parse the syntax of the AAC bitstream within the ADTS payload.
 
