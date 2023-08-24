@@ -473,8 +473,8 @@ impl<'buf> MpaHeader<'buf> {
         Emphasis::from(self.buf[3] & 0b11)
     }
 
-    /// length of this frame, including the length of the header, or None if it can't be calculated
-    /// due to invalid bit rate or frame rate.
+    /// length of this frame in bytes, including the length of the header,
+    /// or None if it can't be calculated due to invalid bit rate or frame rate.
     pub fn frame_length(&self) -> Option<u16> {
         let padding_slots = match self.padding() {
             Padding::Absent => 0,
@@ -490,8 +490,8 @@ impl<'buf> MpaHeader<'buf> {
         })
     }
 
-    /// Calculates the length of the frame payload. Returns None if it can't be calculated due to
-    /// invalid bit rate or frame rate.
+    /// Calculates the length of the frame payload in bytes.
+    /// Returns None if it can't be calculated due to invalid bit rate or frame rate.
     pub fn payload_length(&self) -> Option<u16> {
         Some(self.frame_length()? - self.header_length())
     }
@@ -584,8 +584,8 @@ pub enum MpaParseError {
 ///     fn new_config(&mut self, mpeg_version: MpegVersion, mpeg_layer: MpegLayer, protection: ProtectionIndicator, rate: BitRate, freq: SamplingFrequency, private_bit: u8, channel_mode: ChannelMode, copyright: Copyright, originality: Originality, emphasis: Emphasis) {
 ///         println!("Configuration {:?} {:?} {:?} {:?} {:?}", mpeg_version, mpeg_layer, rate, freq, channel_mode);
 ///     }
-///     fn payload(&mut self, buf: &[u8]) {
-///         println!(" - frame of {} bytes", buf.len());
+///     fn payload(&mut self, header: &MpaHeader, buf: &[u8]) {
+///         println!(" - frame of {} bytes with header {:?}", buf.len(), header);
 ///     }
 ///     fn error(&mut self, err: MpaParseError) {
 ///         println!(" - oops: {:?}", err);
@@ -620,7 +620,7 @@ pub trait MpaConsumer {
     );
 
     /// called with the MPEG frame payload
-    fn payload(&mut self, buf: &[u8]);
+    fn payload(&mut self, header: &MpaHeader, buf: &[u8]);
 
     /// called if MpaParser encounters an error in the MPEG bitstream.
     fn error(&mut self, err: MpaParseError);
@@ -830,7 +830,7 @@ where
     fn push_payload(consumer: &mut C, h: MpaHeader<'_>) {
         match h.payload() {
             Ok(payload) => {
-                consumer.payload(payload);
+                consumer.payload(&h, payload);
             }
             Err(PayloadError { expected: None, .. }) => {
                 panic!("Header doesn't contain enough information to compute payload length");
@@ -947,7 +947,7 @@ mod tests {
             self.assert_seq(0);
             assert_eq!(mpeg_version, MpegVersion::Mpeg2);
         }
-        fn payload(&mut self, buf: &[u8]) {
+        fn payload(&mut self, _header: &MpaHeader, buf: &[u8]) {
             self.payload_seq += 1;
             let new_payload_seq = self.payload_seq;
             self.assert_seq(new_payload_seq);

@@ -38,8 +38,8 @@ impl MpaConsumer for DumpMpaConsumer {
             emphasis,
         );
     }
-    fn payload(&mut self, buf: &[u8]) {
-        println!("Audio Frame",);
+    fn payload(&mut self, header: &MpaHeader, buf: &[u8]) {
+        println!("Audio Frame {:?}", header);
         hexdump::hexdump(buf);
         self.frame_count += 1;
     }
