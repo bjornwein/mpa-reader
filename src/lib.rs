@@ -72,6 +72,16 @@ pub enum MpegLayer {
     LayerIII,
 }
 
+impl MpegLayer {
+    /// The number of samples per frame is constant for each layer
+    pub fn samples_per_frame(&self) -> u16 {
+        match self {
+            MpegLayer::LayerI => 384,
+            MpegLayer::LayerII | MpegLayer::LayerIII => 1152,
+        }
+    }
+}
+
 #[derive(Debug, PartialEq, Clone, Copy)]
 pub enum ProtectionIndicator {
     CrcPresent,
@@ -488,6 +498,11 @@ impl<'buf> MpaHeader<'buf> {
             (144 * self.bit_rate().rate()? / self.sampling_frequency().freq()? + padding_slots)
                 as u16
         })
+    }
+
+    /// Get the number of samples of this frame
+    pub fn frame_samples(&self) -> u16 {
+        self.mpeg_layer().samples_per_frame()
     }
 
     /// Calculates the length of the frame payload in bytes.
