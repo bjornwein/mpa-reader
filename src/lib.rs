@@ -675,7 +675,9 @@ where
     }
 
     fn is_new_config(&self, header_data: &[u8]) -> bool {
-        self.current_config != header_data[0..3]
+        // Ignore padding and private bits as they don't really affect the audio format
+        self.current_config[0..2] != header_data[0..2]
+            || (self.current_config[2] & 0b1111_1100) != (header_data[2] & 0b1111_1100)
     }
 
     fn remember(&mut self, remaining_data: &[u8], desired_data_len: usize) {
