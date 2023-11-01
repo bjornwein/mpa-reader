@@ -527,7 +527,10 @@ impl<'buf> MpaHeader<'buf> {
     /// The payload audio data inside this MPEG frame
     pub fn payload(&self) -> Result<&'buf [u8], PayloadError> {
         let Some(len) = self.frame_length() else {
-            return Err(PayloadError { expected: None, actual: self.buf.len() })
+            return Err(PayloadError {
+                expected: None,
+                actual: self.buf.len(),
+            });
         };
         let len = len as usize;
         if self.buf.len() < len {
